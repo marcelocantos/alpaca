@@ -149,6 +149,7 @@ func connectToServer(w http.ResponseWriter, req *http.Request) net.Conn {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
+	w.Header().Set("Content-Length", "0")
 	w.WriteHeader(http.StatusOK)
 	return conn
 }
