@@ -41,7 +41,7 @@ func (pf *ProxyFinder) findProxyForRequest(req *http.Request) (*url.URL, error) 
 	if !pf.fetcher.isConnected() {
 		return nil, nil
 	}
-	id := req.Context().Value("id")
+	id := contextId(req.Context())
 	s, err := pf.runner.FindProxyForURL(req.URL)
 	if err != nil {
 		return nil, err

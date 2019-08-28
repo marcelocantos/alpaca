@@ -1,13 +1,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFindProxyForRequest(t *testing.T) {
@@ -32,7 +32,7 @@ func TestFindProxyForRequest(t *testing.T) {
 			defer server.Close()
 			pf := NewProxyFinder(server.URL)
 			req := httptest.NewRequest(http.MethodGet, "https://www.test", nil)
-			req = req.WithContext(context.WithValue(req.Context(), "id", i))
+			req = req.WithContext(contextWithId(req.Context(), uint(i)))
 			proxy, err := pf.findProxyForRequest(req)
 			if test.expectError {
 				assert.NotNil(t, err)

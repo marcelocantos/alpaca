@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -38,7 +37,7 @@ func newProxyHandler(tr *http.Transport, auth *authenticator) ProxyHandler {
 
 func (ph ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	ctx = context.WithValue(ctx, "id", <-ph.ids)
+	ctx = contextWithId(ctx, <-ph.ids)
 	req = req.WithContext(ctx)
 	deleteRequestHeaders(req)
 	if req.Method == http.MethodConnect {
@@ -73,7 +72,7 @@ func (ph ProxyHandler) handleConnect(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		// The response status has already been sent, so if hijacking fails, we can't return
 		// an error status to the client. Instead, log the error and finish up.
-		log.Printf("[%d] Error hijacking connection: %s", req.Context().Value("id"), err)
+		log.Printf("[%d] Error hijacking connection: %s", contextId(req.Context()), err)
 		server.Close()
 		return
 	}
@@ -94,7 +93,7 @@ func connectViaProxy(w http.ResponseWriter, req *http.Request, proxy string, aut
 	}
 	err = req.Write(conn)
 	if err != nil {
-		log.Printf("[%d] Error sending CONNECT request: %v", req.Context().Value("id"), err)
+		log.Printf("[%d] Error sending CONNECT request: %v", contextId(req.Context()), err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
@@ -191,7 +190,7 @@ func (ph ProxyHandler) proxyRequest(w http.ResponseWriter, req *http.Request, au
 		// The response status has already been sent, so if copying
 		// fails, we can't return an error status to the client.
 		// Instead, log the error.
-		log.Printf("[%d] Error copying response body: %s", req.Context().Value("id"), err)
+		log.Printf("[%d] Error copying response body: %s", contextId(req.Context()), err)
 		return
 	}
 }

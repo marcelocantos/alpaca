@@ -4,12 +4,13 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"os/user"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var getCredentialsFromKeyring func() (authenticator, error)
@@ -68,7 +69,7 @@ func main() {
 		log.Println("No PAC URL specified or detected; all requests will be made directly")
 		handler = NewProxyHandler(func(req *http.Request) (*url.URL, error) {
 			log.Printf(`[%d] %s %s via "DIRECT"`,
-				req.Context().Value("id"), req.Method, req.URL)
+				contextId(req.Context()), req.Method, req.URL)
 			return nil, nil
 		}, nil)
 	} else if _, err := url.Parse(pacURL); err != nil {
